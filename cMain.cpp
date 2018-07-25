@@ -6,7 +6,7 @@ int Height = 720;
 
 const MARGINS Margin = { 0, 0, Width, Height };
 
-char lWindowName[256] = "thiccc";
+char lWindowName[256] = "thiccc"; /* lWindowName ? Local Window Name*/
 HWND hWnd;
 
 char tWindowName[256] = "Sea of Thieves"; /* tWindowName ? Target Window Name */
