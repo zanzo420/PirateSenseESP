@@ -53,19 +53,19 @@ void ReadData()
 		BASE = mem.Module("SoTGame.exe");
 		FirstRun = false;
 
-		auto address = IgroWidgets::FindPatternExternal(mem.hProcess, reinterpret_cast<HMODULE>(BASE), 
+		auto address = EOWidgets::FindPatternExternal(mem.hProcess, reinterpret_cast<HMODULE>(BASE), 
 			reinterpret_cast<const unsigned char*>("\x48\x8B\x0D\x00\x00\x00\x00\x48\x8B\x01\xFF\x90\x00\x00\x00\x00\x48\x8B\xF8\x33\xD2\x48\x8D\x4E"),
 			"xxx????xxxxx????xxxxxxxx");
 		if (address > 0)
 		{			
-			WorldAddress = IgroWidgets::ReadRIPAddress(mem.hProcess, address, 3, 7);			
+			WorldAddress = EOWidgets::ReadRIPAddress(mem.hProcess, address, 3, 7);			
 		}
-		address = IgroWidgets::FindPatternExternal(mem.hProcess, reinterpret_cast<HMODULE>(BASE), 
+		address = EOWidgets::FindPatternExternal(mem.hProcess, reinterpret_cast<HMODULE>(BASE), 
 			reinterpret_cast<const unsigned char*>("\x48\x8B\x3D\x00\x00\x00\x00\x48\x85\xFF\x75\x00\xB9\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\xF8\x48\x89\x44"),
 			"xxx????xxxx?x????x????xxxxxx");
 		if (address > 0)
 		{
-			NamesAddress = IgroWidgets::ReadRIPAddress(mem.hProcess, address, 3, 7);
+			NamesAddress = EOWidgets::ReadRIPAddress(mem.hProcess, address, 3, 7);
 		}
 		
 		//WaitForMultipleObjects(sizeof(rghThreads) / sizeof(HANDLE), rghThreads, TRU E, INFINITE);

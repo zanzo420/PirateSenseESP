@@ -5,7 +5,7 @@
 #include <cstring>
 #include <psapi.h>
 
-namespace IgroWidgets
+namespace EOWidgets
 {	
 	size_t FindPatternDump(const unsigned char * dump, const size_t length, const unsigned char* pattern, const char* mask, size_t & outOffset)
 	{
@@ -53,7 +53,7 @@ namespace IgroWidgets
 			if(ReadProcessMemory(processHanlde, moduleHandle, buffer, info.SizeOfImage, nullptr) != 0)
 			{
 				size_t offset;
-				if(IgroWidgets::FindPatternDump(buffer, info.SizeOfImage, pattern, mask, offset))
+				if(EOWidgets::FindPatternDump(buffer, info.SizeOfImage, pattern, mask, offset))
 				{
 					result = moduleAddress + offset;
 				}
@@ -104,7 +104,7 @@ namespace IgroWidgets
 		MODULEINFO info = { };			
 		if(GetModuleInformation(processHanlde, moduleHandle, &info, sizeof(MODULEINFO)))
 		{
-			result = IgroWidgets::FindPattern(reinterpret_cast<uintptr_t>(moduleHandle), info.SizeOfImage, pattern, mask);
+			result = EOWidgets::FindPattern(reinterpret_cast<uintptr_t>(moduleHandle), info.SizeOfImage, pattern, mask);
 		}
 		return result;
 	}
