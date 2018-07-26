@@ -560,7 +560,7 @@ int Render()
 				//
 				// SUNKEN CURSE STATUES
 				//
-				else if (name.find("BP_SunkenCurseArtefact_") != std::string::npos)
+				if (name.find("BP_SunkenCurseArtefact_") != std::string::npos)
 				{
 					info.id = iActorID;
 					if (name.find("Ruby") != std::string::npos)
@@ -780,9 +780,6 @@ int Render()
 						DrawBox(headpoint.x - wi / 2, headpoint.y, wi, hi, 1, 255, 0, 0, 255);
 
 					}
-
-
-
 				}
 				else if (ActorArray.at(i).rareity == Rare)
 				{
@@ -814,13 +811,10 @@ int Render()
 						DrawBox(headpoint.x - wi / 2, headpoint.y, wi, hi, 1, 0, 0, 255, 255);
 						DrawString((char*)ActorArray.at(i).name.c_str(), ScreenPoint.x - (ActorArray.at(i).namesize / 2), ScreenPoint.y + hi / 2, 0, 0, 255, pFontSmall);
 					}
-
 					*/
-					
 					FillRGB(ScreenPoint.x - 2, ScreenPoint.y - 2, 4, 4, 75, 0, 130, 255);
 					if (WorldToScreen(ActorArray.at(i).Location, &ScreenPoint))
 						DrawString(const_cast<char*>(ActorArray.at(i).name.c_str()), ScreenPoint.x, ScreenPoint.y, 75, 0, 130, pFontSmall);
-						
 				}
 				else
 				{
@@ -829,9 +823,6 @@ int Render()
 						DrawString(const_cast<char*>(ActorArray.at(i).name.c_str()), ScreenPoint.x, ScreenPoint.y, 255, 215, 05, pFontSmall);
 				}
 				ActorArray.erase(ActorArray.begin() + i);
-
-
-
 			}
 
 	}
