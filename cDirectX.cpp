@@ -107,6 +107,10 @@ int Render()
 				auto fName = mem.Read<ULONG_PTR>(fNamePtr + 8 * (iActorID % 0x4000));
 				auto rs = mem.Read<text>(fName + 16);
 				std::string name = rs.word;
+				//
+				myActorArray = ActorList;
+
+				//
 				if ((name.find("BP_PlayerPirate_C") == std::string::npos) && name.find("BP_SmallShipNetProxy") == std::string::npos && name.find("BP_"))
 					continue;
 
@@ -114,21 +118,9 @@ int Render()
 				auto Actorrelativelocation = mem.Read<Vector3>(ActorRootComponet + Offsets::RelativeLocation);//owninggameinstance.LocalPlayersPTR->LocalPlayers->PlayerController->PlayerState->RootComponent->RelativeLocation_0;
 				auto ActorYaw = mem.Read<float>(ActorRootComponet + Offsets::RelativeRotationYaw);//owninggameinstance.LocalPlayersPTR->LocalPlayers->PlayerController->PlayerState->RootComponent->RelativeLocation_0;
 
-				auto ActorWieldedItemComponent = mem.Read<ULONG_PTR>(Actor + Offsets::WieldedItemComponent);
-				auto ActorCurrentWieldedItem = mem.Read<ULONG_PTR>(ActorWieldedItemComponent + Offsets::CurrentlyWieldedItem);
-				auto ActorpWieldedItem = mem.Read<ULONG_PTR>(ActorCurrentWieldedItem + Offsets::WieldableItemName);
-				std::wstring ActorItemWieleded = mem.Read<textx>(ActorpWieldedItem).word;
-
-				using convert_type = std::codecvt_utf8<wchar_t>;
-				std::wstring_convert<convert_type, wchar_t> converter;
-
-				//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
-				std::string ActorItemWieleded_str = converter.to_bytes(ActorItemWieleded);
-
 				AActors info;
-
-				info.namesize = GetTextWidth(name.c_str(), pFontSmall);
-				info.item = ActorItemWieleded_str;
+				AActors zinfo;
+				
 				//if (name.find("BP_PlayerPirate_C") != std::string::npos || name.find("BP_TreasureChest_P") != std::string::npos || name.find("BP_BountyRewardSkull_P") != std::string::npos || name.find("BP_ShipwreckTreasureChest_P") != std::string::npos || (name.find("BP_MerchantCrate") != std::string::npos && name.find("Proxy") != std::string::npos) || name.find("BP_SmallShipTemplate_C") != std::string::npos || name.find("BP_LargeShipTemplate_C") != std::string::npos || name.find("Skeleton") != std::string::npos)
 
 				//
@@ -136,24 +128,34 @@ int Render()
 				//
 				if (name.find("BP_PlayerPirate_C") != std::string::npos)
 				{
+					//--Get Actor's wielded item--
+					auto ActorWieldedItemComponent = mem.Read<ULONG_PTR>(Actor + Offsets::WieldedItemComponent);
+					auto ActorCurrentWieldedItem = mem.Read<ULONG_PTR>(ActorWieldedItemComponent + Offsets::CurrentlyWieldedItem);
+					auto ActorpWieldedItem = mem.Read<ULONG_PTR>(ActorCurrentWieldedItem + Offsets::WieldableItemName);
+					std::wstring ActorItemWieleded = mem.Read<textx>(ActorpWieldedItem).word;
+					using convert_type = std::codecvt_utf8<wchar_t>;
+					std::wstring_convert<convert_type, wchar_t> converter;
+					//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
+					std::string ActorItemWieleded_str = converter.to_bytes(ActorItemWieleded);
+
+					info.namesize = GetTextWidth(name.c_str(), pFontSmall);
+					info.item = ActorItemWieleded_str;
+					
+					//--Get Actor's Health/Name--
 					const auto Actorhealthcomponet = mem.Read<ULONG_PTR>(Actor + Offsets::HealthComponent);
 					const float Actorhealth = mem.Read<float>(Actorhealthcomponet + Offsets::CurrentHealth);
 					const float Actormaxhealth = mem.Read<float>(Actorhealthcomponet + Offsets::MaxHealth);
 					const auto ActorPlayerstate = mem.Read<ULONG_PTR>(Actor + Offsets::PlayerState);
 					const auto ActorNamePointer = mem.Read<ULONG_PTR>(ActorPlayerstate + Offsets::PlayerName);
 					const auto ActorName = mem.Read<textx>(ActorNamePointer);
-
 					std::wstring test = ActorName.word;
-
 					using convert_type = std::codecvt_utf8<wchar_t>;
-					std::wstring_convert<convert_type, wchar_t> converter;
-
-					//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
+					//std::wstring_convert<convert_type, wchar_t> converter;	//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
 					std::string converted_str = converter.to_bytes(test);
 
 					if (converted_str == menamestring)
 						continue;
-
+					//--Get Actor's ID/Name/Location/health
 					info.id = iActorID;
 					info.name = converted_str;
 					info.type = player;
@@ -162,6 +164,7 @@ int Render()
 					info.yaw = ActorYaw;
 					info.health = Actorhealth;
 					info.maxhealth = Actormaxhealth;
+
 					ActorArray.push_back(info);
 
 				}
@@ -530,7 +533,7 @@ int Render()
 				//
 				// SHIPS
 				//
-				else if (name.find("BP_SmallShipNetProxy") != std::string::npos || name.find("BP_LargeShipNetProxy") != std::string::npos)
+				if (name.find("BP_SmallShipNetProxy") != std::string::npos || name.find("BP_LargeShipNetProxy") != std::string::npos)
 				{
 					info.id = iActorID;
 					info.name = "Ship";
@@ -538,9 +541,10 @@ int Render()
 					info.Location = Actorrelativelocation;
 					info.TopLocation = Vector3(Actorrelativelocation.x, Actorrelativelocation.y, Actorrelativelocation.z + 300);
 					info.yaw = ActorYaw;
+
 					ActorArray.push_back(info);
 				}
-				else if (name.find("BP_SmallShipTemplate_C") != std::string::npos || name.find("BP_LargeShipTemplate_C") != std::string::npos)
+				if (name.find("BP_SmallShipTemplate_C") != std::string::npos || name.find("BP_LargeShipTemplate_C") != std::string::npos)
 				{
 					info.id = iActorID;
 					info.name = "Ship";
@@ -548,15 +552,14 @@ int Render()
 					info.Location = Actorrelativelocation;
 					info.TopLocation = Vector3(Actorrelativelocation.x, Actorrelativelocation.y, Actorrelativelocation.z + 300);
 					info.yaw = ActorYaw;
+
 					ActorArray.push_back(info);
 				}
 				//
 				// ISLAND SERVICE POINTER
 				//
-				if (name.find("IslandService") != std::string::npos)
-				{
-					IslandDataAsset_PTR = mem.Read<ULONG_PTR>(Actor + Offsets::IslandDataAsset);
-				}
+				if (name.find("IslandService") != std::string::npos) 
+				{ IslandDataAsset_PTR = mem.Read<ULONG_PTR>(Actor + Offsets::IslandDataAsset );	}
 				//
 				// SUNKEN CURSE STATUES
 				//

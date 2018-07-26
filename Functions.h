@@ -126,6 +126,7 @@ struct AActors
 };
 
 std::vector<AActors> ActorArray;
+std::vector<AActors> myActorArray;
 std::vector<AActors> WeildingArray;
 
 #define Assert( _exp ) ((void)0)
