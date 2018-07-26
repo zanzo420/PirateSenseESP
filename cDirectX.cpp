@@ -107,10 +107,14 @@ int Render()
 				auto fName = mem.Read<ULONG_PTR>(fNamePtr + 8 * (iActorID % 0x4000));
 				auto rs = mem.Read<text>(fName + 16);
 				std::string name = rs.word;
-				//
-				myActorArray = ActorList;
+				/* 
+				if (name.find("BP_"))
+				{
+					std::string myActorList = myActorList + " || " + name;
+				}
+				*/
+				std::string myActorList = myActorList + " || " + name;
 
-				//
 				if ((name.find("BP_PlayerPirate_C") == std::string::npos) && name.find("BP_SmallShipNetProxy") == std::string::npos && name.find("BP_"))
 					continue;
 
