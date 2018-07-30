@@ -24,7 +24,6 @@ struct Color
 };
 
 
-
 /*#define WORLD_OFFSET 0x51b5578
 #define OBJECTS_OFFSET 0x50f3680
 #define NAME_OFFSET 0x50f7e40*/
@@ -110,7 +109,7 @@ enum type
 	chicken,
 	pig,
 	snake,
-	fort,
+	fort
 };
 
 struct AActors
@@ -126,7 +125,7 @@ struct AActors
 };
 
 std::vector<AActors> ActorArray;
-std::vector<AActors> myActorArray;
+//std::vector<AActors> myActorArray;
 std::vector<AActors> WeildingArray;
 
 #define Assert( _exp ) ((void)0)

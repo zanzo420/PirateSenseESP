@@ -6,6 +6,7 @@
 
 #include <Windows.h>
 #include <iostream>
+#include <fstream>
 
 #include <d3d9.h>
 #include <d3dx9.h>

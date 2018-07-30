@@ -1,7 +1,9 @@
-
 #include "Functions.h"
 #include "cfg.h"
 #include "Offsets.h"
+#include <fstream>
+#include <iostream>
+#include <string>
 
 IDirect3D9Ex* p_Object = 0;
 IDirect3DDevice9Ex* p_Device = 0;
@@ -44,6 +46,8 @@ int DirectXInit(HWND hWnd)
  Vector2 actor = Vector2(100, 220);
  float myangle = 180;
 
+
+
 int Render()
 {
 	p_Device->Clear(0, 0, D3DCLEAR_TARGET, 0, 1.0f, 0);
@@ -71,25 +75,18 @@ int Render()
 			auto CameraManager = mem.Read<ULONG_PTR>(PlayerController + Offsets::PlayerCameraManager);
 			auto RootComponent = mem.Read<ULONG_PTR>(LocalPlayer + Offsets::RootComponent);
 
-			
-
 			ULONG_PTR ULevel = mem.Read<ULONG_PTR>(World + Offsets::PersistentLevel);
-
 			int ActorCount = mem.Read<int>(ULevel + Offsets::ActorsTArrayCount);
 
 			std::vector<Vector3> new_XMarksTheSpot;
-
 		//	cfg.SaveCfg();
 		//	cfg.LoadCfg();
-
 			auto LocalNamePointer = mem.Read<ULONG_PTR>(LocalPlayeState + Offsets::PlayerName);
 			auto LocalName = mem.Read<textx>(LocalNamePointer);
 
 			std::wstring mename = LocalName.word;
-
 			using convert_type = std::codecvt_utf8<wchar_t>;
 			std::wstring_convert<convert_type, wchar_t> converter;
-
 			//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
 			std::string menamestring = converter.to_bytes(mename);
 
@@ -107,23 +104,45 @@ int Render()
 				auto fName = mem.Read<ULONG_PTR>(fNamePtr + 8 * (iActorID % 0x4000));
 				auto rs = mem.Read<text>(fName + 16);
 				std::string name = rs.word;
-				/* 
-				if (name.find("BP_"))
+
+				if (name.find("BP_") != std::string::npos)
 				{
 					std::string myActorList = myActorList + " || " + name;
+					std::string myLine;
+					std::ifstream inMyFile("ACTORS_LIST_FILE");
+					if(inMyFile.is_open())
+					{
+						while (std::getline(inMyFile, myLine))
+						{
+							std::cout<<myLine<< '\n';
+						}
+						inMyFile.close();
+					}
+					std::ofstream myFile("ACTORS_LIST_FILE.txt");
+					if(myFile.is_open())
+					{
+						myFile << name + "\n";
+						myFile.close();
+					}
 				}
-				*/
-				std::string myActorList = myActorList + " || " + name;
+				//std::string myActorList = myActorList + " || " + name;
 
-				if ((name.find("BP_PlayerPirate_C") == std::string::npos) && name.find("BP_SmallShipNetProxy") == std::string::npos && name.find("BP_"))
+				if ((name.find("BP_PlayerPirate_C") == std::string::npos) && name.find("BP_SmallShipNetProxy") == std::string::npos && name.find("BP_TreasureChest_P") == std::string::npos && name.find("BP_ShipwreckTreasureChest_P") == std::string::npos && name.find("Proxy") != std::string::npos)
 					continue;
 
 				auto ActorRootComponet = mem.Read<ULONG_PTR>(Actor + Offsets::RootComponent);
 				auto Actorrelativelocation = mem.Read<Vector3>(ActorRootComponet + Offsets::RelativeLocation);//owninggameinstance.LocalPlayersPTR->LocalPlayers->PlayerController->PlayerState->RootComponent->RelativeLocation_0;
 				auto ActorYaw = mem.Read<float>(ActorRootComponet + Offsets::RelativeRotationYaw);//owninggameinstance.LocalPlayersPTR->LocalPlayers->PlayerController->PlayerState->RootComponent->RelativeLocation_0;
-
+				const auto ActorPlayerstate = mem.Read<ULONG_PTR>(Actor + Offsets::PlayerState);
+				const auto ActorNamePointer = mem.Read<ULONG_PTR>(ActorPlayerstate + Offsets::PlayerName);
+				const auto ActorName = mem.Read<textx>(ActorNamePointer);
+				std::wstring test = ActorName.word;
+				using convert_type = std::codecvt_utf8<wchar_t>;
+				//std::wstring_convert<convert_type, wchar_t> converter;	//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
+				std::string converted_str = converter.to_bytes(test);
+				
 				AActors info;
-				AActors zinfo;
+				//AActors zinfo;
 				
 				//if (name.find("BP_PlayerPirate_C") != std::string::npos || name.find("BP_TreasureChest_P") != std::string::npos || name.find("BP_BountyRewardSkull_P") != std::string::npos || name.find("BP_ShipwreckTreasureChest_P") != std::string::npos || (name.find("BP_MerchantCrate") != std::string::npos && name.find("Proxy") != std::string::npos) || name.find("BP_SmallShipTemplate_C") != std::string::npos || name.find("BP_LargeShipTemplate_C") != std::string::npos || name.find("Skeleton") != std::string::npos)
 
@@ -149,13 +168,6 @@ int Render()
 					const auto Actorhealthcomponet = mem.Read<ULONG_PTR>(Actor + Offsets::HealthComponent);
 					const float Actorhealth = mem.Read<float>(Actorhealthcomponet + Offsets::CurrentHealth);
 					const float Actormaxhealth = mem.Read<float>(Actorhealthcomponet + Offsets::MaxHealth);
-					const auto ActorPlayerstate = mem.Read<ULONG_PTR>(Actor + Offsets::PlayerState);
-					const auto ActorNamePointer = mem.Read<ULONG_PTR>(ActorPlayerstate + Offsets::PlayerName);
-					const auto ActorName = mem.Read<textx>(ActorNamePointer);
-					std::wstring test = ActorName.word;
-					using convert_type = std::codecvt_utf8<wchar_t>;
-					//std::wstring_convert<convert_type, wchar_t> converter;	//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
-					std::string converted_str = converter.to_bytes(test);
 
 					if (converted_str == menamestring)
 						continue;
