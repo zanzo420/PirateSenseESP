@@ -53,7 +53,7 @@ int Render()
 	p_Device->Clear(0, 0, D3DCLEAR_TARGET, 0, 1.0f, 0);
 	p_Device->BeginScene();
 
-	//cfg.LoadCfg();
+	// cfg.LoadCfg();
 
 	if(tWnd == GetForegroundWindow())
 	{
@@ -98,7 +98,6 @@ int Render()
 				if (!Actor) continue;
 
 				int iActorID = mem.Read<int>(Actor + Offsets::Id);
-
 				auto chunk = iActorID / 0x4000;
 				auto fNamePtr = mem.Read<ULONG_PTR>(GNames + chunk * 8);
 				auto fName = mem.Read<ULONG_PTR>(fNamePtr + 8 * (iActorID % 0x4000));
@@ -109,7 +108,7 @@ int Render()
 				{
 					std::string myActorList = myActorList + " || " + name;
 					std::string myLine;
-					std::ifstream inMyFile("ACTORS_LIST_FILE");
+					std::ifstream inMyFile("ACTORS_LIST_FILE.txt");
 					if(inMyFile.is_open())
 					{
 						while (std::getline(inMyFile, myLine))
@@ -121,7 +120,7 @@ int Render()
 					std::ofstream myFile("ACTORS_LIST_FILE.txt");
 					if(myFile.is_open())
 					{
-						myFile << name + "\n";
+						myFile << name << "\n";
 						myFile.close();
 					}
 				}
