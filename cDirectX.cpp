@@ -46,14 +46,14 @@ int DirectXInit(HWND hWnd)
  Vector2 actor = Vector2(100, 220);
  float myangle = 180;
 
-
+// cfg.LoadCfg();
 
 int Render()
 {
 	p_Device->Clear(0, 0, D3DCLEAR_TARGET, 0, 1.0f, 0);
 	p_Device->BeginScene();
 
-	// cfg.LoadCfg();
+	
 
 	if(tWnd == GetForegroundWindow())
 	{
@@ -79,8 +79,7 @@ int Render()
 			int ActorCount = mem.Read<int>(ULevel + Offsets::ActorsTArrayCount);
 
 			std::vector<Vector3> new_XMarksTheSpot;
-		//	cfg.SaveCfg();
-		//	cfg.LoadCfg();
+
 			auto LocalNamePointer = mem.Read<ULONG_PTR>(LocalPlayeState + Offsets::PlayerName);
 			auto LocalName = mem.Read<textx>(LocalNamePointer);
 
@@ -104,7 +103,7 @@ int Render()
 				auto rs = mem.Read<text>(fName + 16);
 				std::string name = rs.word;
 
-				if (name.find("BP_") != std::string::npos)
+				/*if (name.find("BP_") != std::string::npos)
 				{
 					std::string myActorList = myActorList + " || " + name;
 					std::string myLine;
@@ -123,10 +122,10 @@ int Render()
 						myFile << name << "\n";
 						myFile.close();
 					}
-				}
+				}*/
 				//std::string myActorList = myActorList + " || " + name;
 
-				if ((name.find("BP_PlayerPirate_C") == std::string::npos) && name.find("BP_SmallShipNetProxy") == std::string::npos && name.find("BP_TreasureChest_P") == std::string::npos && name.find("BP_ShipwreckTreasureChest_P") == std::string::npos && name.find("Proxy") != std::string::npos)
+				if ((name.find("BP_PlayerPirate_C") == std::string::npos) || name.find("BP_SmallShipNetProxy") == std::string::npos || name.find("BP_TreasureChest_P") == std::string::npos && name.find("Proxy") != std::string::npos || name.find("BP_ShipwreckTreasureChest_P") == std::string::npos && name.find("Proxy") != std::string::npos)
 					continue;
 
 				auto ActorRootComponet = mem.Read<ULONG_PTR>(Actor + Offsets::RootComponent);
@@ -140,10 +139,7 @@ int Render()
 				//std::wstring_convert<convert_type, wchar_t> converter;	//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
 				std::string converted_str = converter.to_bytes(test);
 				
-				AActors info;
-				//AActors zinfo;
-				
-				//if (name.find("BP_PlayerPirate_C") != std::string::npos || name.find("BP_TreasureChest_P") != std::string::npos || name.find("BP_BountyRewardSkull_P") != std::string::npos || name.find("BP_ShipwreckTreasureChest_P") != std::string::npos || (name.find("BP_MerchantCrate") != std::string::npos && name.find("Proxy") != std::string::npos) || name.find("BP_SmallShipTemplate_C") != std::string::npos || name.find("BP_LargeShipTemplate_C") != std::string::npos || name.find("Skeleton") != std::string::npos)
+				AActors info;				//if (name.find("BP_PlayerPirate_C") != std::string::npos || name.find("BP_TreasureChest_P") != std::string::npos || name.find("BP_BountyRewardSkull_P") != std::string::npos || name.find("BP_ShipwreckTreasureChest_P") != std::string::npos || (name.find("BP_MerchantCrate") != std::string::npos && name.find("Proxy") != std::string::npos) || name.find("BP_SmallShipTemplate_C") != std::string::npos || name.find("BP_LargeShipTemplate_C") != std::string::npos || name.find("Skeleton") != std::string::npos)
 
 				//
 				// PLAYER PIRATES
@@ -181,7 +177,6 @@ int Render()
 					info.maxhealth = Actormaxhealth;
 
 					ActorArray.push_back(info);
-
 				}
 				//
 				// TREASURE CHESTS
@@ -658,7 +653,6 @@ int Render()
 			auto myhealth  = mem.Read<float>(HealthComponet + Offsets::CurrentHealth);
 			auto maxhealth = mem.Read<float>(HealthComponet + Offsets::MaxHealth);
 			Sleep(2);
-		
 
 			for (int i = 0; i < XMarksTheSpot.size(); i++)
 			{
@@ -666,7 +660,6 @@ int Render()
 				if (WorldToScreen(XMarksTheSpot.at(i), &ScreenPoints))
 					DrawString("X", ScreenPoints.x, ScreenPoints.y, 255, 0, 0, pFontSmall);
 			}
-
 
 			//colored rects
 			//FillRGB(30, 30, 300, 300, 255, 255, 255, 100);
@@ -677,20 +670,13 @@ int Render()
 
 			for (int i = 0; i < ActorArray.size(); i++)
 			{
-
 				float angle = getAngle(Vector2(myLocation.x, myLocation.y), Vector2(ActorArray.at(i).Location.x, ActorArray.at(i).Location.y));
 				Vector2 dist = Vector2((myLocation.x - ActorArray.at(i).Location.x) / 100, (myLocation.y - ActorArray.at(i).Location.y) / 100);
-				
-			
 				int distance = Vector2(myLocation.x, myLocation.y).DistTo(Vector2(ActorArray.at(i).Location.x, ActorArray.at(i).Location.y)) / 100;
-
 				ActorArray.at(i).name = ActorArray.at(i).name + " [" + std::to_string(distance) + "m]";
-
 				Vector2 point2dist = me - dist;
-
-
+			
 				Vector2 ScreenPoint = RotatePoint(point2dist, me, -myAngles.y - 90, false);
-
 				if (ScreenPoint.x < 30)
 					ScreenPoint.x = 30;
 				if (ScreenPoint.y < 30)
@@ -708,30 +694,22 @@ int Render()
 					if (WorldToScreen(ActorArray.at(i).Location, &ScreenPoint))
 						DrawString((char*)ActorArray.at(i).name.c_str(), ScreenPoint.x, ScreenPoint.y, 0, 255, 0, pFontSmall);
 				}
-
 				else if (ActorArray.at(i).type == player)
 				{
-
 						FillRGB(ScreenPoint.x - 3, ScreenPoint.y - 3, 6, 6, 0, 0, 255, 255);
 						Vector2 headpoint;
 						if (WorldToScreen(ActorArray.at(i).TopLocation, &headpoint) && WorldToScreen(ActorArray.at(i).Location, &ScreenPoint))
 						{
 							//FillRGB(ScreenPoint.x - 2, ScreenPoint.y - 2, 4, 4, 255, 0, 0, 255);
-
 							int hi = (ScreenPoint.y - headpoint.y) * 2;
 							int wi = hi * 0.65;
-
 							DrawBox(headpoint.x - wi / 2, headpoint.y, wi, hi, 1, 0, 0, 255, 255);
 
-
 							int health = ActorArray.at(i).health;
-
 							if (health > 100)
 								health = 100;
-
 							int r = 255 - health * 2.55;
 							int g = health * 2.55;
-
 							float wtf = health / 100.f;
 							float healthBar = hi * wtf;
 							int healthBarDelta = hi - healthBar;
@@ -739,21 +717,16 @@ int Render()
 							FillRGB(headpoint.x - wi / 2 - 6, headpoint.y - 1, 5, hi + 2, 0, 0, 0, 255);
 							FillRGB(headpoint.x - wi / 2 - 5, headpoint.y + healthBarDelta, 3, healthBar, r, g, 0, 255);
 
-
 							DrawString(const_cast<char*>(ActorArray.at(i).name.c_str()), headpoint.x - (GetTextWidth(ActorArray.at(i).name.c_str(), pFontSmall) / 2), headpoint.y - 14, 255, 255, 255, pFontSmall);
 							DrawString(const_cast<char*>(ActorArray.at(i).item.c_str()), headpoint.x - (GetTextWidth(ActorArray.at(i).item.c_str(), pFontSmall) / 2), headpoint.y + hi, 255, 255, 255, pFontSmall);
-
 						}
-					
 				}
-
 				else if (ActorArray.at(i).rareity == Common)
 				{
 					FillRGB(ScreenPoint.x - 2, ScreenPoint.y - 2, 4, 4, 165, 42, 42, 255);
 					if (WorldToScreen(ActorArray.at(i).Location, &ScreenPoint))
 						DrawString(const_cast<char*>(ActorArray.at(i).name.c_str()), ScreenPoint.x, ScreenPoint.y, 165, 42, 42, pFontSmall);
 				}
-
 				else if (ActorArray.at(i).type == animalcrate)
 				{
 					FillRGB(ScreenPoint.x - 2, ScreenPoint.y - 2, 4, 4, 230, 230, 250, 255);
@@ -772,36 +745,6 @@ int Render()
 					if (WorldToScreen(ActorArray.at(i).Location, &ScreenPoint))
 						DrawString(const_cast<char*>(ActorArray.at(i).name.c_str()), ScreenPoint.x, ScreenPoint.y, 255, 165, 0, pFontSmall);
 				}
-
-
-				else if (ActorArray.at(i).type == skeleton)
-				{
-					FillRGB(ScreenPoint.x - 2, ScreenPoint.y - 2, 4, 4, 255, 0, 0, 255);
-					Vector2 headpoint;
-
-				/*	if (false)
-					{
-						Vector3 fsa = CalcAngle(myLocation, ActorArray.at(i).TopLocation);
-						WriteLocalAngles(fsa);
-					}*/
-
-					if (WorldToScreen(ActorArray.at(i).TopLocation, &headpoint) && WorldToScreen(ActorArray.at(i).Location, &ScreenPoint))
-					{
-						//FillRGB(ScreenPoint.x - 2, ScreenPoint.y - 2, 4, 4, 255, 0, 0, 255);
-
-						int hi, wi;
-
-						hi = (ScreenPoint.y - headpoint.y) * 2;
-					
-						wi = hi * 0.65;
-
-						DrawBox(headpoint.x - wi / 2, headpoint.y, wi, hi, 1, 255, 0, 0, 255);
-
-					}
-
-
-
-				}
 				else if (ActorArray.at(i).rareity == Rare)
 				{
 					FillRGB(ScreenPoint.x - 2, ScreenPoint.y - 2, 4, 4, 0, 255, 255, 255);
@@ -816,29 +759,38 @@ int Render()
 				}
 				else if (ActorArray.at(i).rareity == Mythical)
 				{
-					/*
-					FillRGB(ScreenPoint.x - 3, ScreenPoint.y - 3, 6, 6, 0, 0, 255, 255);
+					/*FillRGB(ScreenPoint.x - 3, ScreenPoint.y - 3, 6, 6, 0, 0, 255, 255);
 					Vector2 headpoint;
 					if (WorldToScreen(ActorArray.at(i).TopLocation, &headpoint) && WorldToScreen(ActorArray.at(i).Location, &ScreenPoint))
 					{
 						//FillRGB(ScreenPoint.x - 2, ScreenPoint.y - 2, 4, 4, 255, 0, 0, 255);
-
 						int hi, wi;
-
 						hi = (ScreenPoint.y - headpoint.y) * 2;
-
 						wi = hi;
-
 						DrawBox(headpoint.x - wi / 2, headpoint.y, wi, hi, 1, 0, 0, 255, 255);
 						DrawString((char*)ActorArray.at(i).name.c_str(), ScreenPoint.x - (ActorArray.at(i).namesize / 2), ScreenPoint.y + hi / 2, 0, 0, 255, pFontSmall);
-					}
-
-					*/
-					
+					}*/
 					FillRGB(ScreenPoint.x - 2, ScreenPoint.y - 2, 4, 4, 75, 0, 130, 255);
 					if (WorldToScreen(ActorArray.at(i).Location, &ScreenPoint))
 						DrawString(const_cast<char*>(ActorArray.at(i).name.c_str()), ScreenPoint.x, ScreenPoint.y, 75, 0, 130, pFontSmall);
-						
+				}
+				else if (ActorArray.at(i).type == skeleton)
+				{
+					FillRGB(ScreenPoint.x - 2, ScreenPoint.y - 2, 4, 4, 255, 0, 0, 255);
+					Vector2 headpoint;
+					/*	if (false)
+					{
+					Vector3 fsa = CalcAngle(myLocation, ActorArray.at(i).TopLocation);
+					WriteLocalAngles(fsa);
+					}*/
+					if (WorldToScreen(ActorArray.at(i).TopLocation, &headpoint) && WorldToScreen(ActorArray.at(i).Location, &ScreenPoint))
+					{
+						//FillRGB(ScreenPoint.x - 2, ScreenPoint.y - 2, 4, 4, 255, 0, 0, 255);
+						int hi, wi;
+						hi = (ScreenPoint.y - headpoint.y) * 2;
+						wi = hi * 0.65;
+						DrawBox(headpoint.x - wi / 2, headpoint.y, wi, hi, 1, 255, 0, 0, 255);
+					}
 				}
 				else
 				{
@@ -846,10 +798,8 @@ int Render()
 					if (WorldToScreen(ActorArray.at(i).Location, &ScreenPoint))
 						DrawString(const_cast<char*>(ActorArray.at(i).name.c_str()), ScreenPoint.x, ScreenPoint.y, 255, 215, 05, pFontSmall);
 				}
-				ActorArray.erase(ActorArray.begin() + i);
 
-
-
+				ActorArray.erase(ActorArray.begin() + i); /// Increase the value by 1 to go to the next item in the array.
 			}
 
 	}
